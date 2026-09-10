@@ -12,6 +12,9 @@
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);
     -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  /* Pas de barre de scroll visible (préférence Herman) — le scroll reste fonctionnel */
+  html{scrollbar-width:none;-ms-overflow-style:none}
+  html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
   .stage{position:fixed;inset:0;z-index:2;overflow:hidden;background:var(--bg)}
   #tour{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.03) contrast(1.03)}
   .scrim{position:absolute;inset:0;pointer-events:none}
@@ -92,11 +95,6 @@
     <p>Une vraie visite qui se navigue au scroll — à brancher sur n'importe quel bien ou site.</p>
     <span class="tag">a.SYNC — expériences web immersives</span>
   </footer>
-
-  <div class="rail">
-    <div class="line"><div class="fill" id="fill"></div></div>
-    <div class="pct" id="pct">00</div>
-  </div>
 </div>
 
 <div class="loader" id="loader"><div class="r"></div><div class="t">Chargement de la visite</div></div>
@@ -105,7 +103,6 @@
 (function(){
   var video=document.getElementById('tour'),track=document.getElementById('track'),
       intro=document.getElementById('intro'),outro=document.getElementById('outro'),
-      fill=document.getElementById('fill'),pct=document.getElementById('pct'),
       loader=document.getElementById('loader'),
       chapters=[].slice.call(document.querySelectorAll('.chapter'));
   var progress=0,shown=0,dur=0,ready=false;
@@ -131,8 +128,6 @@
       ch.classList.toggle('on',progress>=s&&progress<e);
     });
     outro.classList.toggle('on',progress>0.93);
-    fill.style.transform='scaleY('+progress+')';
-    pct.textContent=('0'+Math.round(progress*100)).slice(-2);
   }
   function loop(){
     shown+=(progress-shown)*(reduce?1:0.12);
