@@ -154,7 +154,7 @@
 </script>
 <script type="module">
 import * as THREE from 'three';
-import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -208,7 +208,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMappingExposure = 1.18;
 wrap.appendChild(renderer.domElement);
 
 addEventListener('resize', () => {
@@ -217,26 +217,12 @@ addEventListener('resize', () => {
   renderer.setSize(innerWidth, innerHeight);
 });
 
-// HDRI environment
-new RGBELoader().load(
-  'https://threejs.org/examples/textures/equirectangular/royal_esplanade_1k.hdr',
-  (hdri) => { hdri.mapping = THREE.EquirectangularReflectionMapping; scene.environment = hdri; }
-);
-
-// Textures parquet
-const texLoader = new THREE.TextureLoader();
-function rep(url, rx, ry) {
-  const t = texLoader.load(url);
-  t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.repeat.set(rx, ry);
-  t.colorSpace = THREE.SRGBColorSpace;
-  return t;
-}
-const woodDiff = rep('https://threejs.org/examples/textures/hardwood2_diffuse.jpg', 4, 5);
-const woodBump = rep('https://threejs.org/examples/textures/hardwood2_bump.jpg',     4, 5);
+// Environnement PBR — RoomEnvironment intégré à three (AUCUN fichier externe → robuste, pas de 404)
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
 // Lumières
-scene.add(new THREE.AmbientLight(0xF5F0E1, 0.32));
+scene.add(new THREE.AmbientLight(0xF5F0E1, 0.55));
 const key = new THREE.DirectionalLight(0xFFF6E0, 1.5);
 key.position.set(10, 18, 6);
 key.castShadow = true;
@@ -265,7 +251,7 @@ scene.add(groundOut);
 const MAT = {
   plaster:   new THREE.MeshStandardMaterial({ color:0xEAE5D6, roughness:0.92 }),
   plasterDark: new THREE.MeshStandardMaterial({ color:0x1f1f28, roughness:0.85 }),
-  parquet:   new THREE.MeshStandardMaterial({ map:woodDiff, bumpMap:woodBump, bumpScale:0.05, roughness:0.55, metalness:0.05 }),
+  parquet:   new THREE.MeshStandardMaterial({ color:0xB98A5E, roughness:0.6, metalness:0.04 }),
   lightWood: new THREE.MeshStandardMaterial({ color:0xC8A576, roughness:0.55, metalness:0.05 }),
   darkWood:  new THREE.MeshStandardMaterial({ color:0x4E3A29, roughness:0.6 }),
   blackMetal:new THREE.MeshStandardMaterial({ color:0x1a1a1f, roughness:0.45, metalness:0.6 }),
